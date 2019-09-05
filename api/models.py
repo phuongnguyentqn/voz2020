@@ -41,7 +41,7 @@ class Forum(models.Model):
 
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True, blank=True)
+    email = models.EmailField(unique=True)
     title = models.CharField(max_length=128)
     avatar_url = models.CharField(max_length=256)
     location = models.CharField(max_length=256)
@@ -103,3 +103,10 @@ class Post(DateTimeMixin):
         unique_together = (
             ('thread', 'order_number')
         )
+
+    @property
+    def html_content(self):
+        """
+        TODO: Parse raw to html arcording to content_format(bbcode|markdown)
+        """
+        return self.raw
