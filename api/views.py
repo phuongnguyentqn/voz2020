@@ -19,6 +19,6 @@ class PostListView(generics.ListAPIView):
     serializer_class = serializers.PostSerializer
 
     def get_queryset(self, *args, **kwargs):
-        import pdb; pdb.set_trace()
-        self.queryset = models.Post.objects.filter(thread_id=self.pk).all()
+        tid = self.kwargs['tid']
+        self.queryset = models.Post.objects.filter(thread_id=tid).all()
         return self.queryset

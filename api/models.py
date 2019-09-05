@@ -11,14 +11,14 @@ class DateTimeMixin(models.Model):
     class Meta:
         abstract = True
 
-    def save(self):
+    def save(self, *arg, **kwargs):
         """
         Override to generate create/update time on save
         """
         if not self.id:
             self.created_date = now()
         self.modified_date = now()
-        return super().save()
+        return super().save(*arg, **kwargs)
 
 
 class Box(models.Model):
@@ -30,10 +30,10 @@ class Box(models.Model):
 
 
 class Forum(models.Model):
-    id = models.BigAutoField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=32)
     box = models.ForeignKey(
-        Box, on_delete=models.PROTECT, related_name='forums'
+        Box, on_delete=models.PROTECT, related_name='forums', null=True
     )
 
     class Meta:
@@ -43,7 +43,7 @@ class Forum(models.Model):
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     title = models.CharField(max_length=128)
-    avatar_url = models.CharField(max_length=256)
+    avatar_url = models.CharField(max_length=256, null=True, blank=True)
     location = models.CharField(max_length=256)
     total_posts = models.PositiveIntegerField(default=0)
     is_banned = models.BooleanField(default=False)
@@ -64,15 +64,22 @@ class Thread(DateTimeMixin):
     title = models.CharField(max_length=256)
     rating = models.PositiveIntegerField(default=0)
     views = models.PositiveIntegerField(default=0)
-    replies = models.PositiveIntegerField(default=0)    
+    total_posts = models.PositiveIntegerField(default=0)    
     visible = models.BooleanField(default=True)
     is_sticky = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
     delete_reason = models.CharField(max_length=128)
-    last_post_data = JSONField(default=None)
+    last_post_data = JSONField(default=None, null=True)
+    last_poster = models.ForeignKey(
+        User, on_delete=models.PROTECT, null=True
+    )
 
     class Meta:
         db_table = 'voz_thread'
+    
+    @property
+    def last_post_date(self):
+        self.posts.order_by('-created_date').first().created_date
 
 
 class Post(DateTimeMixin):

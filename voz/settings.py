@@ -123,3 +123,8 @@ STATIC_URL = '/static/'
 
 # Custom settings
 AUTH_USER_MODEL = 'api.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
